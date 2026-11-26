@@ -881,7 +881,56 @@ font-family: 'Source Sans Pro', 'Helvetica Neue', Arial, sans-serif;
 
 
 
-ReactDOM.createRoot(document.getElementById('root')).render(<MDPPatternLibrary />);
+const PASSWORD = '1916';
+
+const LoginGate = () => {
+  const [authed, setAuthed] = useState(() => {
+    try { return sessionStorage.getItem('mdp-auth') === 'ok'; } catch (e) { return false; }
+  });
+  const [value, setValue] = useState('');
+  const [error, setError] = useState(false);
+
+  const submit = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (value === PASSWORD) {
+      try { sessionStorage.setItem('mdp-auth', 'ok'); } catch (err) {}
+      setAuthed(true);
+    } else {
+      setError(true);
+      setValue('');
+    }
+  };
+
+  if (authed) return <MDPPatternLibrary />;
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+      <div className="w-full max-w-sm bg-white rounded-xl shadow-lg p-8">
+        <label htmlFor="pw" className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+        <input
+          id="pw"
+          type="password"
+          autoFocus
+          value={value}
+          onChange={(e) => { setValue(e.target.value); setError(false); }}
+          onKeyDown={(e) => { if (e.key === 'Enter') submit(e); }}
+          placeholder="Enter password"
+          className={`w-full px-4 py-3 rounded-lg outline-none transition-all focus:ring-2 ${
+            error
+              ? 'border-2 border-red-500 bg-red-50 focus:ring-red-500'
+              : 'border border-gray-300 focus:ring-green-500 focus:border-green-500'
+          }`}
+        />
+        {error && <p className="text-red-500 text-sm mt-1">Incorrect password. Please try again.</p>}
+        <button type="button" onClick={submit} className="w-full mt-6 px-6 py-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-lg transition-all duration-200">
+          Enter
+        </button>
+      </div>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<LoginGate />);
 </script>
 </body>
 </html>
